@@ -1,2 +1,2 @@
 # LowCardPass
-Initial implementation of Ranter-Go-Round Logic.
+Initial Implementation of Ranter-Go-Round Logic.
