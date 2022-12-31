@@ -92,6 +92,10 @@ class Dealer{
     *  and place it in the back of the deck.  Repeat n-1 times.  The permutation is 
     *  completed "in-place" and has no additional space requirement.
     */
+    const short top_val(){
+        return deck.front().getValue();
+    }
+
     void shuffle(){
 
       // seed the random-number generator
@@ -147,7 +151,7 @@ class Player{
 
     Card hand;
     bool is_dealer = false;
-    short points=3;
+    short points=1;
 public:
     void remove_points(){
         points--;
@@ -157,6 +161,9 @@ public:
     }
     void get_id(){
         std::cout<<id<<"\n";
+    }
+    int show_id(){
+        return id;
     }
 
     Player(int n){
@@ -241,6 +248,15 @@ public:
         return sum;
     }
 
+    int find_index(int id){
+        int k = 0;
+        for(auto i : table){
+            k++;
+            if(i.show_id()==id){
+                return k;
+            }
+        }
+    }
     //this is the start of our simulation
     void play(int players){
         if(players<2){
@@ -275,75 +291,84 @@ public:
                 while(true){
                     std::cout<<"\n\n\ndealer is"<<((dealer)%(players))+1<<"\n\n\n";
                     std::cout<<(dealer+i)%players+1;
-
                     if((dealer+i)%players+1==((dealer)%(players))+1){
-                        //TODO: implement dealer logic w/ deck_pass()
-                        std::cout<<"\n\n$dealer$\n\n";
-                        std::cout<<"player "<<(dealer+i)%players+1<<":\n";
-                        std::cout<<"your card is: ";
-                        table.at((dealer+i)%players).view_card();
-                        std::cout<<"\n pass(0) or keep(1)?";
-                        std::cin>>p_k;
-                        if(cin.fail()){
-                            std::cout<<"ERROR";
-                            cin.clear();
-                            cin.ignore();
-                            continue;
+                        try {
+                            //TODO: implement dealer logic w/ deck_pass()
+                            std::cout << "\n\n$dealer$\n\n";
+                            std::cout << "\nplayer " << table.at((dealer + i) % players).show_id() << ":\n";
+                            std::cout << "your card is: ";
+                            table.at((dealer + i) % players).view_card();
+                            std::cout << "\n pass(0) or keep(1)?";
+                            std::cin >> p_k;
+                            if (cin.fail()) {
+                                std::cout << "ERROR";
+                                cin.clear();
+                                cin.ignore();
+                                continue;
+                            }
+
+                            if (p_k) {
+                                //discard.push_back(table.at(i-1).get_card());
+                                //continue;
+                            }
+                            if (!p_k) {
+                                //discard.push_back(table.at(i-1).get_card());
+                                if (var.top_val() != 13) {
+                                    table.at((dealer + i) % players).takeHand(var.deal_one_card());
+                                    std::cout << "\nyour new card is: ";
+                                    table.at((dealer + i) % players).view_card();
+                                    //std::cout<<"\n\ntableend at:"<<(dealer+i)%players<<"\n";
+
+                                    //std::cout<< "\n";
+                                } else {
+                                    std::cout << "THE DECK TOP WAS A KING" << std::endl;
+                                }
+                            }
+                            break;
                         }
-
-                        if(p_k){
-                            //discard.push_back(table.at(i-1).get_card());
-                            //continue;
+                        catch(std::out_of_range){
+                            break;
                         }
-                        if(!p_k){
-                            //discard.push_back(table.at(i-1).get_card());
-                            table.at((dealer+i)%players).takeHand(var.deal_one_card());
-
-                            std::cout<< "\nyour new card is: ";
-                            table.at((dealer+i)%players).view_card();
-
-                            std::cout<<"\n\ntableend at:"<<(dealer+i)%players<<"\n";
-
-                            std::cout<< "\n";
-                        }
-                        round.push_back({i,table.at((dealer+i)%players).get_card()});
-                        break;
                     }
                     else {
-                        std::cout << "\nplayer " << (dealer + i) % players + 1 << ":\n";
-                        std::cout << "your card is:";
-                        table.at((dealer + i) % players).view_card();
-                        std::cout << " \npass(0) or keep(1)?";
-                        std::cin >> p_k;
-                        if (cin.fail()) {
-                            std::cout << "ERROR";
-                            cin.clear();
-                            cin.ignore();
-                            continue;
-                        }
-                        if(!p_k){
-                            table.at((dealer+i+1)%players).get_id();
-                            table.at((dealer+i+1)%players).view_card();
-                            std::cout<<"\nabove is next before";
-                            table.at((dealer+i)%players).swap_neighbor(table.at((dealer+i+1)%players));
-                            if(table.at((dealer+i+1)%players).get_card().getValue()!=13){
-                                std::cout<< "\nyour new card is: ";
-                                table.at((dealer+i)%players).view_card();
-                                break;
+                        try {
+                            std::cout << "\nplayer " << table.at((dealer + i) % players).show_id() << ":\n";
+                            std::cout << "your card is:";
+                            table.at((dealer + i) % players).view_card();
+                            std::cout << " \npass(0) or keep(1)?";
+                            std::cin >> p_k;
+                            if (cin.fail()) {
+                                std::cout << "ERROR";
+                                cin.clear();
+                                cin.ignore();
+                                continue;
                             }
-                            std::cout<<"your neighbor had a king";
+                            if (!p_k) {
+                                table.at((dealer + i + 1) % players).get_id();
+                                table.at((dealer + i + 1) % players).view_card();
+                                std::cout << "\nabove is next before";
+                                table.at((dealer + i) % players).swap_neighbor(table.at((dealer + i + 1) % players));
+                                if (table.at((dealer + i + 1) % players).get_card().getValue() != 13) {
+                                    std::cout << "\nyour new card is: ";
+                                    table.at((dealer + i) % players).view_card();
+                                    break;
+                                }
+                                std::cout << "your neighbor had a king";
 
-                            /*std::cout<<"\n\ntable at:"<<(dealer+i)%players<<"\n";
-                            std::cout<<"\n\nswapping w/ ";
-                            std::cout<<"table at:"<<(dealer+i+1)%players<<"\n";
-                            std::cout<<(dealer+i+1);
-                            std::cout<<"\n\n\n";*/
+                                /*std::cout<<"\n\ntable at:"<<(dealer+i)%players<<"\n";
+                                std::cout<<"\n\nswapping w/ ";
+                                std::cout<<"table at:"<<(dealer+i+1)%players<<"\n";
+                                std::cout<<(dealer+i+1);
+                                std::cout<<"\n\n\n";*/
 
-                           /* table.at((dealer+i+1)%players).get_id();
-                            table.at((dealer+i+1)%players).view_card();*/
+                                /* table.at((dealer+i+1)%players).get_id();
+                                 table.at((dealer+i+1)%players).view_card();*/
+                            }
+                            break;
                         }
-                        round.push_back({i,table.at((dealer+i)%players).get_card()});
-                        break;
+                        catch(std::out_of_range){
+                            break;
+                        }
                     }
                 }
 
@@ -355,12 +380,25 @@ public:
             for(auto i:round){
                 discard.push_back(i.second);
             }
-            short round_min=round.at(0).first;
-            for(auto j:round){
-                if(j.first<round_min){
-                    round_min=j.first;
+            short round_min=table.at(0).get_card().getValue();
+            for(auto j: table){
+                if(j.get_card().getValue()<round_min){
+                    round_min=j.get_card().getValue();
                 }
             }
+
+            for(auto i : table){
+                if(i.get_card().getValue()==round_min){
+                    i.remove_points();
+                }
+                if(i.get_points()==0){
+                    std::cout<<"player "<<i.show_id()<<" was removed.";
+                    players--;
+                    table.erase(table.begin()+ find_index(i.show_id())-1);
+                }
+            }
+            std::cout<<"round minimum was: "<<round_min<<std::endl;
+
 
             std::cout<<deck.size()<<"=decksize\n";
             std::cout<<discard.size();
