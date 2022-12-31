@@ -293,7 +293,6 @@ public:
                     std::cout<<(dealer+i)%players+1;
                     if((dealer+i)%players+1==((dealer)%(players))+1){
                         try {
-                            //TODO: implement dealer logic w/ deck_pass()
                             std::cout << "\n\n$dealer$\n\n";
                             std::cout << "\nplayer " << table.at((dealer + i) % players).show_id() << ":\n";
                             std::cout << "your card is: ";
